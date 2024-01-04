@@ -1,3 +1,7 @@
+/doc/tags
+/.tests/
+
+
 # Compiled Lua sources
 luac.out
 
