@@ -10,7 +10,7 @@ local utils = lazy.require("speeddial.utils") ---@module "speeddial.utils"
 local api = vim.api
 local await, pawait = async.await, async.pawait
 local fmt = string.format
-local pl = lazy.access(utils, "path") ---@type PathLib
+local Path = require("plenary.path")
 local uv = vim.loop
 
 local M = {}
@@ -261,7 +261,8 @@ Logger.queue_msg = async.void(function(self, msg)
     -- We already failed to prepare the log file
     return
   elseif self.outfile_status == Logger.OutfileStatus.UNKNOWN then
-    local ok, err = pawait(pl.touch, pl, self.outfile, { parents = true })
+    local outfile = Path.new(self.outfile)
+    local ok, err = pcall(Path.touch, outfile, { parents = true })
 
     if not ok then
       error("Failed to prepare log file! Details:\n" .. err)

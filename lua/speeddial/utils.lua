@@ -15,10 +15,7 @@ local M = {}
 
 local path_sep = package.config:sub(1, 1)
 
----@type PathLib
-M.path = lazy.require("speeddial.path", function(module)
-  return module.PathLib({ separator = "/" })
-end)
+M.Path = require("plenary.path")
 
 ---@return number # Current time (ms)
 function M.now()

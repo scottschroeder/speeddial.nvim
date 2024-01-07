@@ -1,5 +1,4 @@
 ---@diagnostic disable: deprecated
-local actions = require("speeddial.actions")
 local lazy = require("speeddial.lazy")
 
 local utils = lazy.require("speeddial.utils") ---@module "speeddial.utils"
@@ -44,5 +43,4 @@ function M.setup(user_config)
   setup_done = true
 end
 
-M.actions = actions
 return M
