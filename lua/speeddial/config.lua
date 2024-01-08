@@ -15,6 +15,7 @@ local setup_done = false
 ---@class SpeeddialConfig
 M.defaults = {
   switch = false,
+  sources = {}
 }
 -- stylua: ignore end
 

@@ -5,6 +5,7 @@ end
 local lazy = require("speeddial.lazy")
 
 local EventEmitter = lazy.access("speeddial.events", "EventEmitter") ---@type EventEmitter|LazyModule
+local ProjectDB = lazy.access("speeddial.lib.projectdb", "ProjectDB") ---@type ProjectDB|LazyModule
 local Logger = lazy.access("speeddial.logger", "Logger") ---@type Logger|LazyModule
 local speeddial = lazy.require("speeddial") ---@module "speeddial"
 local utils = lazy.require("speeddial.utils") ---@module "speeddial.utils"
@@ -45,6 +46,7 @@ _G.SpeeddialGlobal = {
 
 SpeeddialGlobal.logger = Logger()
 SpeeddialGlobal.emitter = EventEmitter()
+SpeeddialGlobal.DB = ProjectDB()
 
 SpeeddialGlobal.emitter:on_any(function(e, args)
   speeddial.nore_emit(e.id, utils.tbl_unpack(args))
