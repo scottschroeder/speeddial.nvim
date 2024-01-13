@@ -13,22 +13,27 @@ local M = {}
 local Project = oop.create_class("Project")
 M.Project = Project
 
+---@param path_str string
+local normalize = function(path_str)
+  return Path:new(Path:new(path_str):expand())
+end
+
 local extract_root = function(cfg)
   cfg = cfg or {}
   if cfg.root ~= nil then
-    return Path:new(cfg.root)
+    return normalize(cfg.root)
   end
   if cfg.vcs_root ~= nil then
-    return Path:new(cfg.vcs_root)
+    return normalize(cfg.vcs_root)
   end
 
-  return Path:new(vim.fn.getcwd())
+  return normalize(vim.fn.getcwd())
 end
 
 local extract_vcs_root = function(cfg)
   cfg = cfg or {}
   if cfg.vcs_root ~= nil then
-    return Path:new(cfg.vcs_root)
+    return normalize(cfg.vcs_root)
   end
   error("no vcs root")
 end
