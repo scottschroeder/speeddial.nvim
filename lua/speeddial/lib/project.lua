@@ -1,6 +1,8 @@
 local oop = require("speeddial.oop")
 local Path = require("plenary.path")
 
+local fs = require("speeddial.lib.fs")
+
 local M = {}
 
 ---@class Project : speeddial.Object
@@ -13,27 +15,22 @@ local M = {}
 local Project = oop.create_class("Project")
 M.Project = Project
 
----@param path_str string
-local normalize = function(path_str)
-  return Path:new(Path:new(path_str):expand())
-end
-
 local extract_root = function(cfg)
   cfg = cfg or {}
   if cfg.root ~= nil then
-    return normalize(cfg.root)
+    return fs.normalize(cfg.root)
   end
   if cfg.vcs_root ~= nil then
-    return normalize(cfg.vcs_root)
+    return fs.normalize(cfg.vcs_root)
   end
 
-  return normalize(vim.fn.getcwd())
+  return fs.normalize(vim.fn.getcwd())
 end
 
 local extract_vcs_root = function(cfg)
   cfg = cfg or {}
   if cfg.vcs_root ~= nil then
-    return normalize(cfg.vcs_root)
+    return fs.normalize(cfg.vcs_root)
   end
   error("no vcs root")
 end
@@ -66,17 +63,15 @@ end
 function Project:merge(other)
   if self.title == nil then
     self.title = other.title
-  elseif self.title ~= other.title then
-    error("Cannot merge projects with different titles!")
   end
   if self.root == nil then
     self.root = other.root
-  elseif self.root ~= other.root then
+  elseif self.root:absolute() ~= other.root:absolute() then
     error("Cannot merge projects with different roots!")
   end
   if self.vcs_root == nil then
     self.vcs_root = other.vcs_root
-  elseif self.vcs_root ~= other.vcs_root then
+  elseif self.vcs_root:absolute() ~= other.vcs_root:absolute() then
     error("Cannot merge projects with different vcs_roots!")
   end
   if self.source == nil then

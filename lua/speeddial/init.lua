@@ -20,12 +20,7 @@ local M = {}
 function M.setup(user_config)
   config.setup(user_config or {})
   local cfg = config.get_config()
-  local src_projects = src_loader.load_sources(cfg.sources)
-
-  logger:debug("projects loaded:", #src_projects)
-  for _, p in ipairs(src_projects) do
-    DB:add(p)
-  end
+  src_loader.load_sources(DB, cfg.sources)
 end
 
 function M.init()

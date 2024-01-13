@@ -14,4 +14,11 @@ function M.change_directory(path)
   end
 end
 
+--
+---@param path_str string
+---@return Path
+function M.normalize(path_str)
+  return Path:new(Path:new(path_str):expand())
+end
+
 return M
