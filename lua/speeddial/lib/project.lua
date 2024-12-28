@@ -1,84 +1,95 @@
-local oop = require("speeddial.oop")
-local Path = require("plenary.path")
+local normalize = require("speeddial.lib.fs").normalize
 
-local fs = require("speeddial.lib.fs")
+---@class speeddial.lib.project.Project
+---@field title string: name of this project
+---@field root Path|nil: path to project CWD
+---@field vcs_root Path|nil: path to project VCS root
+---@field source string: source where this project was found
+---@field atime integer: last time project was accessed
+
 
 local M = {}
 
----@class Project : speeddial.Object
----@operator call : Project
----@field title string
----@field root Path
----@field vcs_root Path
----@field source string
----@field atime integer
-local Project = oop.create_class("Project")
-M.Project = Project
 
-local extract_root = function(cfg)
-  cfg = cfg or {}
-  if cfg.root ~= nil then
-    return fs.normalize(cfg.root)
+M._pick_first_dir = function(first, second)
+  if first == nil then
+    return second
   end
-  if cfg.vcs_root ~= nil then
-    return fs.normalize(cfg.vcs_root)
+  return first
+end
+
+---@param cfg table
+---@return speeddial.lib.project.Project
+M.new_project = function(cfg)
+  local normalize_or_nil = function(s)
+    if s == nil then
+      return nil
+    end
+    return normalize(s)
   end
 
-  return fs.normalize(vim.fn.getcwd())
-end
-
-local extract_vcs_root = function(cfg)
-  cfg = cfg or {}
-  if cfg.vcs_root ~= nil then
-    return fs.normalize(cfg.vcs_root)
+  if cfg.root == nil and cfg.vcs_root == nil then
+    error("Either root or vcs_root must be set")
   end
-  error("no vcs root")
+
+  return {
+    title = cfg.title,
+    source = cfg.source,
+    root = normalize_or_nil(cfg.root),
+    vcs_root = normalize_or_nil(cfg.vcs_root),
+    atime = cfg.atime or 0
+  }
 end
 
----@param cfg table|nil
-function Project:init(cfg)
-  cfg = cfg or {}
-  self.title = cfg.title
-  self.source = cfg.source or "Unknown"
-
-  self.root = extract_root(cfg)
-  self.vcs_root = extract_vcs_root(cfg)
-
-  self.atime = cfg.atime or 0
+---@param project speeddial.lib.project.Project
+---@return string
+M.as_path = function(project)
+  return M.get_project_root(project):absolute()
 end
 
-function Project:as_path()
-  return self.root:absolute()
+---@param project speeddial.lib.project.Project
+---@return Path
+M.get_project_root = function(project)
+  return M._pick_first_dir(project.root, project.vcs_root)
 end
 
----@param atime integer|nil
-function Project:touch(atime)
+---@param project speeddial.lib.project.Project
+---@return Path
+M.get_project_vcs_root = function(project)
+  return M._pick_first_dir(project.vcs_root, project.root)
+end
+
+
+---@param project speeddial.lib.project.Project
+---@param atime integer|nil: optional time to set
+M.touch = function(project, atime)
   if atime == nil then
     atime = os.time()
   end
-  self.atime = atime
+  project.atime = atime
 end
-
----@param other Project
-function Project:merge(other)
-  if self.title == nil then
-    self.title = other.title
+---
+---@param base speeddial.lib.project.Project
+---@param other speeddial.lib.project.Project
+M.merge = function(base, other)
+  if base.title == nil then
+    base.title = other.title
   end
-  if self.root == nil then
-    self.root = other.root
-  elseif self.root:absolute() ~= other.root:absolute() then
+  if base.root == nil then
+    base.root = other.root
+  elseif other.root ~= nil and base.root:absolute() ~= other.root:absolute() then
     error("Cannot merge projects with different roots!")
   end
-  if self.vcs_root == nil then
-    self.vcs_root = other.vcs_root
-  elseif self.vcs_root:absolute() ~= other.vcs_root:absolute() then
+  if base.vcs_root == nil then
+    base.vcs_root = other.vcs_root
+  elseif other.vcs_root ~= nil and base.vcs_root:absolute() ~= other.vcs_root:absolute() then
     error("Cannot merge projects with different vcs_roots!")
   end
-  if self.source == nil then
-    self.source = other.source
+  if base.source == nil then
+    base.source = other.source
   end
-  if other.atime > self.atime then
-    self.atime = other.atime
+  if other.atime > base.atime then
+    base.atime = other.atime
   end
 end
 

@@ -1,4 +1,4 @@
-local logger = SpeeddialGlobal.logger
+local log = require("speeddial.log")
 local Path = require("plenary.path")
 
 local M = {}
@@ -9,13 +9,13 @@ function M.change_directory(path)
     vim.fn.execute("cd " .. tostring(path:absolute()), "silent")
     return true
   else
-    logger:warn("path does not exist", path:absolute())
+    log.warn("path does not exist", path:absolute())
     return false
   end
 end
 
 --
----@param path_str string
+---@param path_str string|Path
 ---@return Path
 function M.normalize(path_str)
   return Path:new(Path:new(path_str):expand())

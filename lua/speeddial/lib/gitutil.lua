@@ -1,9 +1,13 @@
-local logger = SpeeddialGlobal.logger
 local Path = require("plenary.path")
-
 local M = {}
 
-function M.parse_repo_name_from_url(config_line)
+---@param vcs_root Path: the path to the git repository root
+---@return Path: the path to the git config file
+function M._git_config_file(vcs_root)
+  return vcs_root:joinpath("/.git/config")
+end
+
+function M._parse_repo_name_from_url(config_line)
   local s, e = config_line:find("github.com/[^/]+/[^/]+")
   if s then
     local offset = #"github.com/"
@@ -12,7 +16,7 @@ function M.parse_repo_name_from_url(config_line)
   return nil
 end
 
-local function parse_remote_name(config_line)
+function M._parse_remote_name(config_line)
   local s, _, remote = config_line:find('%[remote "(%a+)"%]')
   if s then
     return remote
@@ -20,7 +24,10 @@ local function parse_remote_name(config_line)
   return nil
 end
 
-function M.parse_repo_name_from_git_path(path)
+---
+---@param lines string[]: each line from a .git/config file
+---@return table<string,string>: the remotes, and their associated names
+function M._parse_git_remotes(lines)
   local remotes = {}
   local last_remote = nil
 
@@ -42,16 +49,29 @@ function M.parse_repo_name_from_git_path(path)
   end
 
 
-  local gitconfig = path:joinpath("/.git/config")
-  local ok, lines = pcall(Path.readlines, gitconfig)
+  for _, line in pairs(lines) do
+    safe_remote(M._parse_remote_name(line))
+    safe_insert(M._parse_repo_name_from_url(line))
+  end
+  return remotes
+end
+
+---@param lines string[]: each line from a .git/config file
+---@return string: the name of the remote
+function M._extract_name_from_git_config(lines)
+  local remotes = M._parse_git_remotes(lines)
+  return remotes["upstream"] or remotes["origin"] or remotes["__last"]
+end
+
+---@param vcs_root Path: the path to the git repository root
+---@return string|nil: the common-name of the repo
+function M.parse_repo_name_from_git_repo(vcs_root)
+  local gitconfig = M._git_config_file(vcs_root)
+  local ok, lines = pcall(Path.readlines, gitconfig:absolute())
   if not ok then
     return nil
   end
-  for _, line in pairs(lines) do
-    safe_remote(parse_remote_name(line))
-    safe_insert(M.parse_repo_name_from_url(line))
-  end
-  return remotes["upstream"] or remotes["origin"] or remotes["__last"]
+  return M._extract_name_from_git_config(lines)
 end
 
 return M

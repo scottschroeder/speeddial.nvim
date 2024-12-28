@@ -1,7 +1,7 @@
 .PHONY: all
 all: test
 
-TEST_PATH := $(if $(TEST_PATH),$(TEST_PATH),lua/speeddial/tests/)
+TEST_PATH := $(if $(TEST_PATH),$(TEST_PATH),./tests)
 export TEST_PATH
 
 # Usage:

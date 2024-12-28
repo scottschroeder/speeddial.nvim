@@ -1,42 +1,42 @@
-if not require("speeddial.bootstrap") then
-  return
-end
+require("speeddial.bootstrap")
 
-local lazy = require("speeddial.lazy")
-local src_loader = lazy.require("speeddial.lib.source") ---@module "speeddial.lib.source"
-local speeddial_select = lazy.require("speeddial.lib.select") ---@module "speeddial.lib.select"
+local log = require("speeddial.log")
 
-local config = lazy.require("speeddial.config") ---@module "speeddial.config"
--- local lib = lazy.require("speeddial.lib") ---@module "speeddial.lib"
-local utils = lazy.require("speeddial.utils") ---@module "speeddial.utils"
+-- local src_loader = require("speeddial.lib.source") ---@module "speeddial.lib.source"
+-- local speeddial_select = require("speeddial.lib.select") ---@module "speeddial.lib.select"
 
-local api = vim.api
-local logger = SpeeddialGlobal.logger
-local DB = SpeeddialGlobal.DB
-local pl = lazy.access(utils, "path") ---@type PathLib
+local config = require("speeddial.config") ---@module "speeddial.config"
+
+
 
 local M = {}
 
 function M.setup(user_config)
   config.setup(user_config or {})
   local cfg = config.get_config()
-  src_loader.load_sources(DB, cfg.sources)
+  log.trace("config", cfg)
+  -- src_loader.load_sources(DB, cfg.sources)
 end
-
-function M.init()
-end
-
-M.init()
 
 function M.hello()
-  for k, v in pairs(DB:projects()) do
-    logger:info("proj kv", k, v)
-  end
+  local cfg = config.get_config()
+  log.info(cfg)
+
+  log.trace("trace log line")
+  log.debug("debug log line")
+  log.info("info log line")
+  log.warn("warn log line")
+  log.error("error log line")
+  log.fatal("fatal log line")
+
+  -- for k, v in pairs(DB:projects()) do
+  --   logger:info("proj kv", k, v)
+  -- end
 end
 
 function M.select(opts)
   opts = opts or {}
-  speeddial_select.select_impl(DB, opts)
+  -- speeddial_select.select_impl(DB, opts)
 end
 
 return M

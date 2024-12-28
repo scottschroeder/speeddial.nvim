@@ -1,17 +1,9 @@
----@diagnostic disable: deprecated
-local lazy = require("speeddial.lazy")
-
-local utils = lazy.require("speeddial.utils") ---@module "speeddial.utils"
+local utils = require("speeddial.utils")
 
 local M = {}
 
 local setup_done = false
 
----@class ConfigLogOptions
----@field single_file LogOptions
----@field multi_file LogOptions
-
--- stylua: ignore start
 ---@class SpeeddialConfig
 M.defaults = {
   switch = false,
@@ -39,7 +31,6 @@ function M.setup(user_config)
     utils.tbl_deep_clone(M.defaults),
     user_config
   )
-
 
   setup_done = true
 end

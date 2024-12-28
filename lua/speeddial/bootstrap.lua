@@ -2,22 +2,7 @@ if SpeeddialGlobal and SpeeddialGlobal.bootstrap_done then
   return SpeeddialGlobal.bootstrap_ok
 end
 
-local lazy = require("speeddial.lazy")
-
-local EventEmitter = lazy.access("speeddial.events", "EventEmitter") ---@type EventEmitter|LazyModule
-local ProjectDB = lazy.access("speeddial.lib.projectdb", "ProjectDB") ---@type ProjectDB|LazyModule
-local Logger = lazy.access("speeddial.logger", "Logger") ---@type Logger|LazyModule
-local speeddial = lazy.require("speeddial") ---@module "speeddial"
-local utils = lazy.require("speeddial.utils") ---@module "speeddial.utils"
-
-local uv = vim.loop
-
-local function err(msg)
-  msg = msg:gsub("'", "''")
-  vim.cmd("echohl Error")
-  vim.cmd(string.format("echom '[speeddial.nvim] %s'", msg))
-  vim.cmd("echohl NONE")
-end
+local log = require("speeddial.log")
 
 _G.SpeeddialGlobal = {
   bootstrap_done = true,
@@ -25,31 +10,32 @@ _G.SpeeddialGlobal = {
 }
 
 if vim.fn.has("nvim-0.7") ~= 1 then
-  err(
+  log.error(
     "Minimum required version is Neovim 0.7.0! Cannot continue."
   )
   return false
 end
 
+---Debug Levels:
+--- "trace"
+--- "debug"
+--- "info"
+--- "warn"
+--- "error"
+--- "fatal"
+---@diagnostic disable-next-line: missing-parameter
+local debug_level = vim.loop.os_getenv("DEBUG_speeddial") or "error"
+
+local logger = log.new({ level = debug_level }, true)
+
 _G.SpeeddialGlobal = {
-  ---Debug Levels:
-  ---0:     NOTHING
-  ---1:     NORMAL
-  ---5:     LOADING
-  ---10:    RENDERING & ASYNC
-  ---@diagnostic disable-next-line: missing-parameter
-  debug_level = tonumber((uv.os_getenv("DEBUG_speeddial"))) or 0,
+  debug_level = debug_level,
   state = {},
   bootstrap_done = true,
   bootstrap_ok = true,
+  logger = logger,
 }
 
-SpeeddialGlobal.logger = Logger()
-SpeeddialGlobal.emitter = EventEmitter()
-SpeeddialGlobal.DB = ProjectDB()
-
-SpeeddialGlobal.emitter:on_any(function(e, args)
-  speeddial.nore_emit(e.id, utils.tbl_unpack(args))
-end)
+log.trace("bootstrap complete")
 
 return true
