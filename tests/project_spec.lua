@@ -1,7 +1,7 @@
 local helpers = require("speeddial.tests.helpers")
 local assert = require("luassert")
 
-local eq, neq = helpers.eq, helpers.neq
+local eq = helpers.eq
 
 describe("speeddial.lib.project", function()
   local project = require("speeddial.lib.project")

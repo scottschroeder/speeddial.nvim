@@ -24,7 +24,7 @@ end
 --- "error"
 --- "fatal"
 ---@diagnostic disable-next-line: missing-parameter
-local debug_level = vim.loop.os_getenv("DEBUG_speeddial") or "error"
+local debug_level = vim.loop.os_getenv("DEBUG_speeddial") or "warn"
 
 local logger = log.new({ level = debug_level }, true)
 

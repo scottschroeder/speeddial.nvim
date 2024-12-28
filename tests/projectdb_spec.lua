@@ -3,7 +3,7 @@ local Path = require("plenary.path")
 local projectdb = require("speeddial.lib.projectdb")
 local project = require("speeddial.lib.project")
 
-local eq, neq = helpers.eq, helpers.neq
+local eq = helpers.eq
 
 describe("speeddial.lib.projectdb", function()
   local normalize = require("speeddial.lib.fs").normalize

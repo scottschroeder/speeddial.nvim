@@ -1,4 +1,3 @@
-local Path = require("plenary.path")
 local normalize = require("speeddial.lib.fs").normalize
 local project = require("speeddial.lib.project")
 
