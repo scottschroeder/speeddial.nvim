@@ -1,5 +1,6 @@
 local log = require("speeddial.log")
 local fs = require("speeddial.lib.fs")
+local project = require("speeddial.lib.project")
 
 M = {}
 
@@ -58,7 +59,7 @@ function M.select_impl(db, opts)
         return
       end
       log.debug("selected project", choice.title)
-      fs.change_directory(choice.root)
+      fs.change_directory(project.get_project_root(choice))
       if opts.after ~= nil then
         opts.after(choice)
       end
