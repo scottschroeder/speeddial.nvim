@@ -112,6 +112,7 @@ local git_import = function(cfg, callback)
 
   log.debug("running fd with args", args)
 
+  SpeeddialGlobal.state.pending_jobs = SpeeddialGlobal.state.pending_jobs + 1
   Job:new({
     command = "fd",
     args = args,
@@ -123,13 +124,15 @@ local git_import = function(cfg, callback)
         vim.schedule(function()
           log.warn("unable to run `fd`")
         end)
+        SpeeddialGlobal.state.pending_jobs = SpeeddialGlobal.state.pending_jobs - 1
         return
       end
-      for _, p in pairs(j:result()) do
-        vim.schedule(function()
+      vim.schedule(function()
+        for _, p in pairs(j:result()) do
           callback(cfg, p)
-        end)
-      end
+        end
+        SpeeddialGlobal.state.pending_jobs = SpeeddialGlobal.state.pending_jobs - 1
+      end)
     end
   }):start()
 end

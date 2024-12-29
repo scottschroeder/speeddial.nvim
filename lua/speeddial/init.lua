@@ -65,7 +65,20 @@ function M.hello()
   end))
 end
 
+---Wait for all pending jobs to finish.
+---Will wait at most `timeout`, checking every 20ms.
+---In practice, this typically takes <150ms, and is not
+---noticeable to the user
+---@param timeout integer: timeout in milliseconds
+local wait_for_jobs = function(timeout)
+  vim.wait(timeout, function()
+    return SpeeddialGlobal.state.pending_jobs == 0
+  end, 20)
+end
+
 function M.select(opts)
+  wait_for_jobs(5000)
+
   speeddial_select.select_impl(SpeeddialGlobal.state.db, opts)
 end
 

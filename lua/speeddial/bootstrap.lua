@@ -30,7 +30,9 @@ local logger = log.new({ level = debug_level }, true)
 
 _G.SpeeddialGlobal = {
   debug_level = debug_level,
-  state = {},
+  state = {
+    pending_jobs = 0
+  },
   bootstrap_done = true,
   bootstrap_ok = true,
   logger = logger,
