@@ -1,5 +1,4 @@
 local helpers = require("speeddial.tests.helpers")
-local Path = require("plenary.path")
 
 local eq, neq = helpers.eq, helpers.neq
 

@@ -14,7 +14,6 @@ function M.change_directory(path)
   end
 end
 
---
 ---@param path_str string|Path
 ---@return Path
 function M.normalize(path_str)

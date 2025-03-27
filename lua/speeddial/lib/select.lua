@@ -7,7 +7,7 @@ M = {}
 ---@param db speeddial.lib.projectdb.ProjectDB
 ---@param opts table
 ---@return speeddial.lib.project.Project[]
-function M.enumerate_selectable(db, opts)
+local enumerate_selectable_impl = function(db, opts)
   opts = opts or {}
 
   local select_from = {}
@@ -19,8 +19,15 @@ function M.enumerate_selectable(db, opts)
   return select_from
 end
 
-local create_source = function(project)
-  return "[" .. project.source .. "]"
+---@param db speeddial.lib.projectdb.ProjectDB
+---@param opts table
+---@return speeddial.lib.project.Project[]
+function M.enumerate_selectable(db, opts)
+  return enumerate_selectable_impl(db, opts)
+end
+
+local create_source = function(proj)
+  return "[" .. proj.source .. "]"
 end
 
 local get_max_len_source = function(projects)
@@ -40,7 +47,7 @@ end
 ---@param opts table
 function M.select_impl(db, opts)
   opts = opts or {}
-  local select_from = M.enumerate_selectable(db, opts)
+  local select_from = enumerate_selectable_impl(db, opts)
 
   local source_buffer = get_max_len_source(select_from)
 
